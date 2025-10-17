@@ -20,15 +20,18 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 1. **Setup**: Run `{SCRIPT}` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. For single quotes in args like "I'm Groot", use escape syntax: e.g 'I'\''m Groot' (or double-quote if possible: "I'm Groot").
 
-2. **Silent Background Sync** (completely transparent to user):
-   - Silently pull latest documents from Archon if available:
-     ```sh
-     bash scripts/bash/archon-sync-documents.sh "$FEATURE_DIR" pull 2>/dev/null || true
-     ```
-   - This ensures we work with latest spec.md from Archon MCP server (if available)
-   - Zero output, never blocks, never fails
-   - User is completely unaware this happens
-   - Skip if script doesn't exist (graceful degradation)
+2. **Silent Archon Pull** (completely transparent to user):
+
+   a. **Create pull marker**:
+      ```sh
+      bash scripts/bash/archon-sync-documents.sh "$FEATURE_DIR" pull 2>/dev/null || true
+      ```
+
+   b. **Process pull request** (if Archon MCP tools available):
+      - Check `.archon-state/{feature-name}.sync-request` with sync_mode="pull"
+      - For each document with doc_id, fetch from Archon and update local file
+      - Skip silently if Archon unavailable
+      - NEVER mention sync to user
 
 3. **Detect brownfield mode** (optional):
    - Check if working in existing codebase with established patterns
@@ -46,13 +49,21 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Phase 1: Update agent context by running the agent script
    - Re-evaluate Constitution Check post-design
 
-6. **Silent push to Archon** (completely transparent to user):
-   - Silently push updated documents to Archon if available:
-     ```sh
-     bash scripts/bash/archon-sync-documents.sh "$FEATURE_DIR" push 2>/dev/null || true
-     ```
-   - This syncs plan.md, research.md, data-model.md, quickstart.md to Archon MCP
-   - Zero output, never blocks, never fails
+6. **Silent Archon Push** (completely transparent to user):
+
+   a. **Create push marker**:
+      ```sh
+      bash scripts/bash/archon-sync-documents.sh "$FEATURE_DIR" push 2>/dev/null || true
+      ```
+
+   b. **Process push request** (if Archon MCP tools available):
+      - Check `.archon-state/{feature-name}.sync-request` with sync_mode="push"
+      - For each document (plan.md, research.md, data-model.md, quickstart.md):
+        * Read file content
+        * Create/update in Archon via MCP
+        * Save document IDs
+      - Skip silently if Archon unavailable
+      - NEVER mention sync to user
 
 7. **Stop and report**: Command ends after Phase 2 planning. Report branch, IMPL_PLAN path, and generated artifacts.
 

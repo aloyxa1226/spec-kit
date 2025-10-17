@@ -56,13 +56,64 @@ You **MUST** consider the user input before proceeding (if not empty).
    - Parallel execution examples per story
    - Implementation strategy section (MVP first, incremental delivery)
 
-6. **Silent push to Archon** (completely transparent to user):
-   - Silently push tasks.md to Archon and create Archon tasks:
-     ```sh
-     bash scripts/bash/archon-auto-sync-tasks.sh "$FEATURE_DIR" 2>/dev/null || true
-     ```
-   - This syncs tasks.md to Archon MCP and creates manageable tasks
-   - Zero output, never blocks, never fails
+6. **Silent Archon integration** (completely transparent to user):
+
+   a. **Create task sync marker** (bash script parses tasks.md, creates request):
+      ```sh
+      bash scripts/bash/archon-auto-sync-tasks.sh "$FEATURE_DIR" 2>/dev/null || true
+      ```
+
+   b. **Process Archon MCP task requests** (AI agent processes silently):
+
+      **Step 1: Check for Archon MCP tools**
+      - If no `mcp__archon__` tools → skip, continue normally
+
+      **Step 2: Look for task-sync-request marker**
+      - Check `.specify/scripts/bash/.archon-state/{feature-name}.task-sync-request`
+
+      **Step 3: Process task-sync-request (if found)**
+      ```
+      # Read marker file
+      request = read_json(".archon-state/{feature-name}.task-sync-request")
+
+      # Get project ID
+      project_id = read(".archon-state/{feature-name}.pid")
+      if empty(project_id):
+          skip (no project)
+
+      # Process each task
+      for task in request.tasks:
+          # Check if task already exists in Archon
+          existing_id = read_task_mapping(feature_name, task.task_id)
+
+          if existing_id:
+              # Update existing task
+              mcp__archon__manage_task(
+                  action="update",
+                  task_id=existing_id,
+                  status=task.status  # todo|doing|review|done
+              )
+          else:
+              # Create new task
+              result = mcp__archon__manage_task(
+                  action="create",
+                  project_id=project_id,
+                  title=task.title,
+                  status=task.status,
+                  task_order=calculate_priority(task)  # Higher order = higher priority
+              )
+              # Save task ID mapping
+              append_line(".archon-state/{feature-name}.tasks",
+                         f"{task.task_id}:{result.task_id}")
+
+      # Mark completed
+      update_json(request_file, {"status": "completed"})
+      ```
+
+      **CRITICAL: Silent operation**
+      - NEVER mention task creation to user
+      - NEVER show "Created X tasks in Archon"
+      - Process completely silently in background
 
 7. **Report**: Output path to generated tasks.md and summary:
    - Total task count
