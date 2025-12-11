@@ -410,4 +410,39 @@ When adding new agents:
 
 ---
 
+## Fork Management (aloyxa1226/spec-kit)
+
+> **Note**: This section applies only to the `aloyxa1226/spec-kit` fork of `github/spec-kit`.
+
+This repository is a fork with custom modifications. Key fork management files:
+
+| File | Purpose |
+|------|---------|
+| `FORK_CUSTOMIZATIONS.md` | Complete fork management guide with protected files, merge strategies, sync workflow |
+| `scripts/bash/prepare-sync.sh` | Automated sync preparation script |
+| `scripts/powershell/prepare-sync.ps1` | PowerShell equivalent |
+
+### Quick Sync Check
+
+```bash
+# Run before any major changes
+bash scripts/bash/prepare-sync.sh
+```
+
+### Protected Files
+
+During upstream syncs, these files use `--ours` merge strategy:
+- All `templates/commands/*.md` files
+- `scripts/bash/*.sh` and `scripts/powershell/*.ps1`
+- `memory/constitution.md`
+- `FORK_CUSTOMIZATIONS.md`
+
+### Commit Convention
+
+Fork-specific commits use the prefix: `fork: <description>`
+
+See `FORK_CUSTOMIZATIONS.md` for complete documentation.
+
+---
+
 *This documentation should be updated whenever new agents are added to maintain accuracy and completeness.*
