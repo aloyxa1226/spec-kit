@@ -44,3 +44,9 @@ env/
 .genreleases/
 *.zip
 sdd-*/
+
+# ai development
+.claude/
+.claude-logs/
+hack/
+
