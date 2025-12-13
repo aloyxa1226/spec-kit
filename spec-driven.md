@@ -271,6 +271,50 @@ These constraints work together to produce specifications that are:
 
 The templates transform the LLM from a creative writer into a disciplined specification engineer, channeling its capabilities toward producing consistently high-quality, executable specifications that truly drive development.
 
+## Brownfield Development Workflow
+
+For existing codebases, spec-kit provides a Research → Plan → Implement workflow:
+
+### Research Phase
+```
+/speckit.research
+```
+Document the existing codebase without suggesting improvements. Produces a research document with file:line references.
+
+### Planning Phase
+```
+/speckit.plan.brownfield
+```
+Create an implementation plan with:
+- Phase-by-phase changes
+- Separated automated/manual verification
+- Constitution check
+- Pause points for review
+
+### Implementation Phase
+```
+/speckit.implement.plan path/to/plan.md
+```
+Execute the plan with:
+- Phase-gate verification
+- Manual testing pauses
+- Progress tracking via checkboxes
+- Mismatch handling
+
+### Session Continuity
+```
+/speckit.handoff.create
+/speckit.handoff.resume path/to/handoff.md
+```
+Transfer context between sessions.
+
+### Directory Structure
+
+Brownfield artifacts are stored in:
+- `.specify/research/` or `thoughts/shared/research/` - Research documents
+- `.specify/plans/` or `thoughts/shared/plans/` - Implementation plans
+- `.specify/handoffs/` or `thoughts/shared/handoffs/` - Session handoffs
+
 ## The Constitutional Foundation: Enforcing Architectural Discipline
 
 At the heart of SDD lies a constitution—a set of immutable principles that govern how specifications become code. The constitution (`memory/constitution.md`) acts as the architectural DNA of the system, ensuring that every generated implementation maintains consistency, simplicity, and quality.
