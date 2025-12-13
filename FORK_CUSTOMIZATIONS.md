@@ -49,9 +49,12 @@ Files listed below contain fork-specific customizations. During upstream syncs, 
 |------|----------------|-------------|
 | `templates/commands/specify.md` | `--ours` | Enhanced prompt engineering |
 | `templates/commands/plan.md` | `--ours` | Additional planning steps |
+| `templates/commands/plan-brownfield.md` | `--ours` | Brownfield planning workflow |
 | `templates/commands/tasks.md` | `--ours` | Custom task generation logic |
 | `templates/commands/implement.md` | `--ours` | Modified implementation workflow |
+| `templates/commands/implement-plan.md` | `--ours` | Implementation tracking with phase gates |
 | `templates/commands/clarify.md` | `--ours` | Custom clarification approach |
+| `templates/commands/research.md` | `--ours` | Brownfield research workflow |
 | `templates/commands/constitution.md` | Manual | Fork-specific constitution rules |
 | `templates/commands/analyze.md` | `--ours` | Custom analysis prompts |
 | `templates/commands/checklist.md` | `--ours` | Modified checklist generation |
@@ -63,9 +66,13 @@ Files listed below contain fork-specific customizations. During upstream syncs, 
 |------|----------------|-------------|
 | `scripts/bash/common.sh` | Manual | Additional utility functions |
 | `scripts/bash/create-new-feature.sh` | Manual | Custom feature numbering |
+| `scripts/bash/prepare-sync.sh` | `--ours` | Automated upstream sync preparation |
 | `scripts/bash/setup-plan.sh` | `--ours` | Modified planning setup |
+| `scripts/bash/spec-metadata.sh` | `--ours` | Spec metadata helpers |
 | `scripts/bash/check-prerequisites.sh` | Manual | Custom validation logic |
 | `scripts/bash/update-agent-context.sh` | Manual | Fork-specific context updates |
+| `scripts/powershell/prepare-sync.ps1` | `--ours` | PowerShell sync preparation |
+| `scripts/powershell/spec-metadata.ps1` | `--ours` | PowerShell spec metadata helpers |
 | `scripts/powershell/*.ps1` | Mirror bash | PowerShell equivalents |
 
 ### Templates (Low-Medium Modification Likelihood)
@@ -74,8 +81,12 @@ Files listed below contain fork-specific customizations. During upstream syncs, 
 |------|----------------|-------------|
 | `templates/spec-template.md` | Manual | Custom specification format |
 | `templates/plan-template.md` | Manual | Modified planning template |
+| `templates/plan-brownfield-template.md` | `--ours` | Brownfield planning template |
 | `templates/tasks-template.md` | Manual | Custom task breakdown format |
 | `templates/checklist-template.md` | `--theirs` | Usually take upstream |
+| `templates/research-template.md` | `--ours` | Brownfield research template |
+| `templates/handoff-template.md` | `--ours` | Session handoff template |
+| `templates/agents/*.md` | `--ours` | Brownfield agent prompts |
 | `templates/agent-file-template.md` | `--theirs` | Usually take upstream |
 
 ### Fork-Specific Files (Never in Upstream)
@@ -83,7 +94,13 @@ Files listed below contain fork-specific customizations. During upstream syncs, 
 | File | Merge Strategy | Description |
 |------|----------------|-------------|
 | `FORK_CUSTOMIZATIONS.md` | `--ours` | This file |
-| `memory/constitution.md` | `--ours` | Fork-specific constitution |
+| `thoughts/shared/**` | `--ours` | Fork-specific planning/research notes |
+
+### Repository Configuration
+
+| File | Merge Strategy | Description |
+|------|----------------|-------------|
+| `.gitignore` | `--ours` | Fork-specific ignored development directories |
 
 ### CLI Customizations
 
@@ -132,17 +149,25 @@ git status | grep "both modified"
 
 ```bash
 # Protected files - keep our version
+git checkout --ours .gitignore
 git checkout --ours templates/commands/specify.md
 git checkout --ours templates/commands/plan.md
+git checkout --ours templates/commands/plan-brownfield.md
 git checkout --ours templates/commands/tasks.md
 git checkout --ours templates/commands/implement.md
+git checkout --ours templates/commands/implement-plan.md
 git checkout --ours templates/commands/clarify.md
+git checkout --ours templates/commands/research.md
 git checkout --ours templates/commands/analyze.md
 git checkout --ours templates/commands/checklist.md
 git checkout --ours templates/commands/taskstoissues.md
+git checkout --ours templates/plan-brownfield-template.md
+git checkout --ours templates/research-template.md
+git checkout --ours templates/handoff-template.md
 git checkout --ours scripts/bash/setup-plan.sh
+git checkout --ours scripts/bash/prepare-sync.sh
+git checkout --ours scripts/bash/spec-metadata.sh
 git checkout --ours FORK_CUSTOMIZATIONS.md
-git checkout --ours memory/constitution.md
 
 # Unmodified files - take upstream version
 git checkout --theirs templates/checklist-template.md
@@ -265,8 +290,19 @@ Track all fork-specific modifications here. Update when adding new customization
 
 | Date | File | Change | Merge Strategy |
 |------|------|--------|----------------|
-| YYYY-MM-DD | `templates/commands/specify.md` | Enhanced prompt engineering | `--ours` |
-| YYYY-MM-DD | `FORK_CUSTOMIZATIONS.md` | Created fork management docs | `--ours` |
+| 2025-12-11 | `FORK_CUSTOMIZATIONS.md` | Created fork management docs | `--ours` |
+| 2025-12-11 | `scripts/bash/prepare-sync.sh` | Added sync preparation script | `--ours` |
+| 2025-12-11 | `scripts/powershell/prepare-sync.ps1` | Added PowerShell sync preparation script | `--ours` |
+| 2025-12-11 | `.gitignore` | Ignored AI development directories | `--ours` |
+| 2025-12-12 | `templates/commands/research.md` | Added brownfield research workflow | `--ours` |
+| 2025-12-12 | `templates/commands/plan-brownfield.md` | Added brownfield planning workflow | `--ours` |
+| 2025-12-12 | `templates/commands/implement-plan.md` | Added implementation tracking workflow | `--ours` |
+| 2025-12-12 | `templates/research-template.md` | Added research template | `--ours` |
+| 2025-12-12 | `templates/plan-brownfield-template.md` | Added brownfield plan template | `--ours` |
+| 2025-12-12 | `templates/handoff-template.md` | Added session handoff template | `--ours` |
+| 2025-12-12 | `templates/agents/*.md` | Added brownfield agent prompts | `--ours` |
+| 2025-12-12 | `scripts/bash/spec-metadata.sh` | Added spec metadata helpers | `--ours` |
+| 2025-12-12 | `scripts/powershell/spec-metadata.ps1` | Added PowerShell spec metadata helpers | `--ours` |
 
 ---
 
