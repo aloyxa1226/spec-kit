@@ -59,6 +59,8 @@ Files listed below contain fork-specific customizations. During upstream syncs, 
 | `templates/commands/analyze.md` | `--ours` | Custom analysis prompts |
 | `templates/commands/checklist.md` | `--ours` | Modified checklist generation |
 | `templates/commands/taskstoissues.md` | `--ours` | Custom issue creation |
+| `templates/commands/handoff-create.md` | `--ours` | Brownfield handoff creation workflow |
+| `templates/commands/handoff-resume.md` | `--ours` | Brownfield handoff resume workflow |
 
 ### Utility Scripts (Medium Modification Likelihood)
 
@@ -106,8 +108,136 @@ Files listed below contain fork-specific customizations. During upstream syncs, 
 
 | File | Merge Strategy | Description |
 |------|----------------|-------------|
-| `src/specify_cli/__init__.py` | Manual | Custom CLI behavior |
+| `src/specify_cli/__init__.py` | Manual | Fork repository configuration, local development mode, brownfield help display |
 | `pyproject.toml` | Manual | Fork-specific dependencies/versions |
+
+### Workflow Customizations
+
+| File | Merge Strategy | Description |
+|------|----------------|-------------|
+| `.github/workflows/release.yml` | Manual | Triggers on `fork-main` branch for independent releases |
+
+---
+
+## Fork-Specific Features
+
+### Brownfield Fork Deployment
+
+The fork includes comprehensive brownfield development support with independent fork-based deployment:
+
+#### **1. Repository Configuration**
+
+The CLI can download templates from any GitHub repository, not just `github/spec-kit`:
+
+```bash
+# Using environment variables
+export SPEC_KIT_REPO_OWNER=aloyxa1226
+export SPEC_KIT_REPO_NAME=spec-kit
+specify init myproject --ai claude --script sh
+
+# Using CLI flags
+specify init myproject --ai claude --script sh --repo-owner aloyxa1226 --repo-name spec-kit
+```
+
+**Configuration precedence:**
+1. CLI arguments (`--repo-owner`, `--repo-name`)
+2. Environment variables (`SPEC_KIT_REPO_OWNER`, `SPEC_KIT_REPO_NAME`)
+3. Default values (`github/spec-kit`)
+
+#### **2. Local Development Mode**
+
+Rapid iteration without GitHub releases using `--local` flag:
+
+```bash
+# From spec-kit repository root
+specify init --here --ai claude --script sh --local --force
+
+# With custom repository path
+specify init myproject --ai claude --script sh --local --local-repo-path /path/to/spec-kit
+
+# Auto-detection order:
+# 1. Custom path (--local-repo-path)
+# 2. Current working directory (if contains templates/commands/)
+# 3. Git repository root (if contains templates/commands/)
+```
+
+**Benefits:**
+- Instant template deployment (no release needed)
+- Test template changes immediately
+- Supports all 17 AI agents
+- Generates agent-specific commands locally
+- 5-10x faster than download mode
+
+#### **3. Fork Release Automation**
+
+GitHub Actions automatically creates releases when pushing to `fork-main`:
+
+```bash
+# Make changes to templates
+git add templates/commands/
+git commit -m "feat: Update brownfield templates"
+git push origin fork-main
+
+# GitHub Actions automatically:
+# 1. Increments patch version
+# 2. Generates 32 packages (17 agents × 2 script types)
+# 3. Creates release with all packages
+# 4. Includes all brownfield commands
+```
+
+**Release triggers:**
+- Push to `fork-main` or `main` branches
+- Changes in: `memory/`, `scripts/`, `templates/`, `.github/workflows/`
+- Manual workflow dispatch
+
+#### **4. Brownfield Command Suite**
+
+Five specialized commands for existing codebase development:
+
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `/speckit.research` | Document and analyze existing codebase | `.specify/research/YYYY-MM-DD-brownfield-*.md` |
+| `/speckit.plan-brownfield` | Create implementation plan for changes | `.specify/plans/YYYY-MM-DD-brownfield-*.md` |
+| `/speckit.implement-plan` | Execute plan with phase-by-phase verification | Code changes + plan checkmarks |
+| `/speckit.handoff-create` | Create session handoff document | `.specify/handoffs/[TICKET/]YYYY-MM-DD_HH-MM-SS_brownfield-*.md` |
+| `/speckit.handoff-resume` | Resume from previous handoff | Restored context + action items |
+
+**Workflow:**
+```
+Research → Plan → Implement → Handoff → Resume → Implement → ...
+```
+
+#### **5. CLI Help Display**
+
+The CLI now displays brownfield commands in a dedicated panel:
+
+```
+╭──────── Brownfield Commands ────────╮
+│  Commands for existing codebases    │
+│  • /speckit.research                │
+│  • /speckit.plan-brownfield         │
+│  • /speckit.implement-plan          │
+│  • /speckit.handoff-create          │
+│  • /speckit.handoff-resume          │
+╰─────────────────────────────────────╯
+```
+
+#### **Implementation Details**
+
+**Files Modified:**
+- `src/specify_cli/__init__.py`: Added 800+ lines for repository config, local mode, help display
+- `.github/workflows/release.yml`: Added `fork-main` trigger
+- `templates/commands/handoff-create.md`: New handoff creation workflow
+- `templates/commands/handoff-resume.md`: New handoff resume workflow (3 invocation modes)
+
+**Key Functions:**
+- `_repo_config()`: Repository configuration with precedence logic
+- `_detect_local_repo_path()`: Auto-detect local spec-kit repository
+- `copy_template_from_local()`: Copy templates from local filesystem
+- `_generate_command_from_template()`: Generate agent-specific commands locally
+
+**Bug Fixes:**
+- Fixed `StepTracker.update()` calls → proper `add()`, `start()`, `complete()` methods
 
 ---
 
@@ -161,6 +291,8 @@ git checkout --ours templates/commands/research.md
 git checkout --ours templates/commands/analyze.md
 git checkout --ours templates/commands/checklist.md
 git checkout --ours templates/commands/taskstoissues.md
+git checkout --ours templates/commands/handoff-create.md
+git checkout --ours templates/commands/handoff-resume.md
 git checkout --ours templates/plan-brownfield-template.md
 git checkout --ours templates/research-template.md
 git checkout --ours templates/handoff-template.md
@@ -303,6 +435,10 @@ Track all fork-specific modifications here. Update when adding new customization
 | 2025-12-12 | `templates/agents/*.md` | Added brownfield agent prompts | `--ours` |
 | 2025-12-12 | `scripts/bash/spec-metadata.sh` | Added spec metadata helpers | `--ours` |
 | 2025-12-12 | `scripts/powershell/spec-metadata.ps1` | Added PowerShell spec metadata helpers | `--ours` |
+| 2025-12-12 | `templates/commands/handoff-create.md` | Added handoff creation workflow | `--ours` |
+| 2025-12-12 | `templates/commands/handoff-resume.md` | Added handoff resume workflow | `--ours` |
+| 2025-12-12 | `src/specify_cli/__init__.py` | Added fork repository config, local mode, brownfield help | Manual |
+| 2025-12-12 | `.github/workflows/release.yml` | Configured release triggers for `fork-main` branch | Manual |
 
 ---
 
