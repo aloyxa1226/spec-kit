@@ -207,7 +207,45 @@ Five specialized commands for existing codebase development:
 Research → Plan → Implement → Handoff → Resume → Implement → ...
 ```
 
-#### **5. CLI Help Display**
+#### **5. Flexible Constitution Lookup**
+
+The brownfield planning workflow supports flexible constitution file lookup with graceful fallback:
+
+**Search Priority Order:**
+1. `.specify/memory/constitution.md` (standard deployed location)
+2. `memory/constitution.md` (source/local dev location)
+3. `.specify/constitution.md` (alternative location)
+4. `constitution.md` (root-level fallback)
+
+**Governance Modes:**
+
+| Mode | Condition | Behavior |
+|------|-----------|----------|
+| **Full Governance** | Constitution file found | Populate Constitution Check from file principles |
+| **Reduced Governance** | No constitution file | Continue with default development process principles |
+
+**Reduced Governance Defaults:**
+- Research-First: Codebase research completed before planning
+- Plan-Before-Code: Plan approved before implementation
+- Phase Gates: Each phase has clear verification criteria
+- Incremental Delivery: Changes are small, testable, and reversible
+
+**User Guidance:**
+When running in Reduced Governance mode, the plan includes actionable guidance:
+```markdown
+> **Reduced Governance Mode Active**
+>
+> This plan was created without a project constitution. Only default development
+> process principles are enforced. To enable full governance:
+> 1. Run `/speckit.constitution` to create a constitution file
+> 2. Re-run `/speckit.plan-brownfield` to regenerate the plan with full governance
+```
+
+**Files Modified:**
+- `templates/commands/plan-brownfield.md`: Constitution loading instructions, population rules
+- `templates/plan-brownfield-template.md`: Governance mode indicator, fallback content
+
+#### **6. CLI Help Display**
 
 The CLI now displays brownfield commands in a dedicated panel:
 
@@ -439,6 +477,8 @@ Track all fork-specific modifications here. Update when adding new customization
 | 2025-12-12 | `templates/commands/handoff-resume.md` | Added handoff resume workflow | `--ours` |
 | 2025-12-12 | `src/specify_cli/__init__.py` | Added fork repository config, local mode, brownfield help | Manual |
 | 2025-12-12 | `.github/workflows/release.yml` | Configured release triggers for `fork-main` branch | Manual |
+| 2025-12-13 | `templates/commands/plan-brownfield.md` | Added flexible constitution lookup with 4-location search, governance modes | `--ours` |
+| 2025-12-13 | `templates/plan-brownfield-template.md` | Added governance mode indicator, reduced governance fallback content | `--ours` |
 
 ---
 
